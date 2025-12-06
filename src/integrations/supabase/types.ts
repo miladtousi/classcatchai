@@ -14,16 +14,221 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      lesson_media: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          duration_seconds: number | null
+          generated_at: string | null
+          id: string
+          lesson_id: string
+          video_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          generated_at?: string | null
+          id?: string
+          lesson_id: string
+          video_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          generated_at?: string | null
+          id?: string
+          lesson_id?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_media_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          created_at: string
+          id: string
+          original_file_url: string | null
+          script: string | null
+          status: Database["public"]["Enums"]["lesson_status"]
+          subject: string | null
+          summary: string | null
+          teacher_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          original_file_url?: string | null
+          script?: string | null
+          status?: Database["public"]["Enums"]["lesson_status"]
+          subject?: string | null
+          summary?: string | null
+          teacher_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          original_file_url?: string | null
+          script?: string | null
+          status?: Database["public"]["Enums"]["lesson_status"]
+          subject?: string | null
+          summary?: string | null
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_progress: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          id: string
+          last_watched_at: string | null
+          lesson_id: string
+          progress_percent: number | null
+          student_id: string
+          updated_at: string
+          xp_earned: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          last_watched_at?: string | null
+          lesson_id: string
+          progress_percent?: number | null
+          student_id: string
+          updated_at?: string
+          xp_earned?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          last_watched_at?: string | null
+          lesson_id?: string
+          progress_percent?: number | null
+          student_id?: string
+          updated_at?: string
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_stats: {
+        Row: {
+          created_at: string
+          id: string
+          last_activity_date: string | null
+          level: number | null
+          streak_days: number | null
+          student_id: string
+          total_xp: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_activity_date?: string | null
+          level?: number | null
+          streak_days?: number | null
+          student_id: string
+          total_xp?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_activity_date?: string | null
+          level?: number | null
+          streak_days?: number | null
+          student_id?: string
+          total_xp?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "teacher" | "parent" | "student"
+      lesson_status: "draft" | "script_ready" | "generating" | "ready"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +355,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["teacher", "parent", "student"],
+      lesson_status: ["draft", "script_ready", "generating", "ready"],
+    },
   },
 } as const
