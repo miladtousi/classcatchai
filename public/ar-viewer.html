@@ -14,7 +14,7 @@
     html, body {
       width: 100%;
       height: 100%;
-      background: transparent;
+      background: #1a1a2e;
     }
     model-viewer {
       width: 100%;
@@ -22,80 +22,177 @@
       background: transparent;
       --poster-color: transparent;
     }
-    .ar-button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
+    .controls {
       position: absolute;
       bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
       z-index: 10;
     }
+    .ar-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .ar-button:active {
-      background-color: #45a049;
+      transform: scale(0.98);
+    }
+    .learn-button {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+    .learn-button.talking {
+      background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+      box-shadow: 0 4px 15px rgba(235, 51, 73, 0.4);
+    }
+    .learn-button:active {
+      transform: scale(0.98);
     }
     .ar-prompt {
       position: absolute;
-      top: 50%;
+      top: 80px;
       left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.7);
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
       color: white;
       padding: 16px 24px;
       border-radius: 12px;
       text-align: center;
       font-family: Arial, sans-serif;
+      font-size: 14px;
       display: none;
       z-index: 20;
+      max-width: 280px;
+    }
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
+  <div class="loading" id="loading">Loading Mousey... 🐭</div>
+  
   <model-viewer
     id="model"
-    src="./models/fox-avatar.glb"
+    src="/models/fox-avatar.glb"
     alt="Mousey 3D character"
     ar
     ar-modes="webxr scene-viewer quick-look"
-    ar-scale="auto"
+    ar-scale="fixed"
     ar-placement="floor"
     camera-controls
     auto-rotate
     shadow-intensity="1"
     shadow-softness="1"
-    exposure="1"
-    environment-image="neutral"
+    exposure="1.2"
+    camera-orbit="0deg 75deg 2.5m"
+    min-camera-orbit="auto auto 1m"
+    max-camera-orbit="auto auto 5m"
+    field-of-view="30deg"
     style="width: 100%; height: 100%;"
   >
-    <button slot="ar-button" class="ar-button">
-      👆 View in AR
-    </button>
+    <div class="controls">
+      <button id="learn-btn" class="learn-button" onclick="toggleTalking()">
+        ▶️ Start Learning
+      </button>
+      <button slot="ar-button" class="ar-button">
+        📱 View in AR
+      </button>
+    </div>
   </model-viewer>
 
   <div class="ar-prompt" id="ar-prompt">
-    Point your camera at the floor and tap to place Mousey! 🐭
+    👆 Point at the floor and tap to place Mousey!
   </div>
 
   <script>
     const modelViewer = document.getElementById('model');
+    const loadingEl = document.getElementById('loading');
     const arPrompt = document.getElementById('ar-prompt');
+    const learnBtn = document.getElementById('learn-btn');
+    
+    let isTalking = false;
+    let talkingTimeout = null;
 
+    // Hide loading when model is ready
+    modelViewer.addEventListener('load', () => {
+      loadingEl.style.display = 'none';
+    });
+
+    // Show AR placement prompt
     modelViewer.addEventListener('ar-status', (event) => {
       if (event.detail.status === 'session-started') {
         arPrompt.style.display = 'block';
         setTimeout(() => {
           arPrompt.style.display = 'none';
-        }, 4000);
+        }, 5000);
       } else {
         arPrompt.style.display = 'none';
       }
     });
+
+    function toggleTalking() {
+      if (isTalking) {
+        stopTalking();
+      } else {
+        startTalking();
+      }
+    }
+
+    function startTalking() {
+      isTalking = true;
+      modelViewer.src = '/models/mousey-talking.glb';
+      modelViewer.autoRotate = false;
+      learnBtn.innerHTML = '⏹️ Stop Lesson';
+      learnBtn.classList.add('talking');
+      
+      // Auto-stop after 60 seconds
+      talkingTimeout = setTimeout(() => {
+        stopTalking();
+      }, 60000);
+    }
+
+    function stopTalking() {
+      isTalking = false;
+      if (talkingTimeout) {
+        clearTimeout(talkingTimeout);
+        talkingTimeout = null;
+      }
+      modelViewer.src = '/models/fox-avatar.glb';
+      modelViewer.autoRotate = true;
+      learnBtn.innerHTML = '▶️ Start Learning';
+      learnBtn.classList.remove('talking');
+    }
   </script>
 </body>
 </html>
