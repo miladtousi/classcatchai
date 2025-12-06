@@ -1,6 +1,7 @@
 import { XPBadge } from "./XPBadge";
-import { Bell, Settings, User } from "lucide-react";
+import { Bell, Settings, User, ArrowLeft } from "lucide-react";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   studentName: string;
@@ -9,16 +10,21 @@ interface HeaderProps {
 }
 
 export function Header({ studentName, xp, level }: HeaderProps) {
+  const navigate = useNavigate();
+  
   return (
     <header className="w-full py-4 px-6 flex items-center justify-between bg-card/50 backdrop-blur-lg border-b border-border/50 sticky top-0 z-50">
       {/* Logo */}
       <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="hidden sm:flex">
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
         <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-soft">
           <span className="text-xl">🐭</span>
         </div>
         <div className="hidden sm:block">
-          <h1 className="text-xl font-black gradient-text">ClassCatch</h1>
-          <p className="text-xs text-muted-foreground font-medium">Learn with fun!</p>
+          <h1 className="text-xl font-black gradient-text">ClassCatch AI</h1>
+          <p className="text-xs text-muted-foreground font-medium">Learn with Mousey!</p>
         </div>
       </div>
 
