@@ -1,38 +1,54 @@
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Environment, ContactShadows } from "@react-three/drei";
+import { OrbitControls, useGLTF, useAnimations, Environment, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 
-function FoxModel({ isWaving = false }: { isWaving?: boolean }) {
-  const { scene } = useGLTF("/models/fox-avatar.glb");
-  const groupRef = useRef<THREE.Group>(null);
+function CharacterModel({ isWaving = false }: { isWaving?: boolean }) {
+  const group = useRef<THREE.Group>(null);
+  const { scene, animations } = useGLTF("/models/fox-avatar.glb");
+  const { actions, names } = useAnimations(animations, group);
   
+  useEffect(() => {
+    // Play the first animation if available
+    if (names.length > 0 && actions[names[0]]) {
+      actions[names[0]]?.reset().fadeIn(0.5).play();
+    }
+  }, [actions, names]);
+
   useFrame((state) => {
-    if (groupRef.current) {
+    if (group.current) {
       // Gentle floating animation
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.1;
+      group.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.05 - 0.8;
       
-      // Subtle rotation when waving
+      // Subtle rotation
       if (isWaving) {
-        groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 3) * 0.1;
+        group.current.rotation.y = Math.sin(state.clock.elapsedTime * 3) * 0.15;
       } else {
-        // Slow idle rotation
-        groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
+        group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
       }
     }
   });
 
   return (
-    <group ref={groupRef}>
-      <primitive object={scene} scale={1.5} position={[0, -1, 0]} />
+    <group ref={group} position={[0, -0.8, 0]} scale={0.025}>
+      <primitive object={scene} />
     </group>
   );
 }
 
 function LoadingFallback() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y = state.clock.elapsedTime;
+      meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.1;
+    }
+  });
+
   return (
-    <mesh>
-      <sphereGeometry args={[0.5, 32, 32]} />
+    <mesh ref={meshRef}>
+      <boxGeometry args={[0.5, 0.5, 0.5]} />
       <meshStandardMaterial color="#E86D4A" />
     </mesh>
   );
@@ -47,22 +63,25 @@ export function FoxAvatar({ isWaving = false, className = "" }: FoxAvatarProps) 
   return (
     <div className={`w-full h-full ${className}`}>
       <Canvas
-        camera={{ position: [0, 0, 5], fov: 45 }}
+        camera={{ position: [0, 0.5, 3], fov: 50 }}
         dpr={[1, 2]}
+        gl={{ antialias: true }}
       >
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-        <directionalLight position={[-10, -10, -5]} intensity={0.3} />
-        <pointLight position={[0, 5, 0]} intensity={0.5} color="#FFC857" />
+        <color attach="background" args={["#FDF8F4"]} />
+        <fog attach="fog" args={["#FDF8F4", 5, 15]} />
+        
+        <ambientLight intensity={0.8} />
+        <directionalLight position={[5, 5, 5]} intensity={1.2} castShadow />
+        <directionalLight position={[-5, 3, -5]} intensity={0.4} />
+        <pointLight position={[0, 3, 0]} intensity={0.5} color="#FFC857" />
         
         <Suspense fallback={<LoadingFallback />}>
-          <FoxModel isWaving={isWaving} />
-          <Environment preset="sunset" />
+          <CharacterModel isWaving={isWaving} />
           <ContactShadows 
-            position={[0, -1.5, 0]} 
-            opacity={0.4} 
-            scale={10} 
-            blur={2} 
+            position={[0, -1.2, 0]} 
+            opacity={0.5} 
+            scale={5} 
+            blur={2.5} 
             far={4}
           />
         </Suspense>
@@ -71,8 +90,8 @@ export function FoxAvatar({ isWaving = false, className = "" }: FoxAvatarProps) 
           enableZoom={false} 
           enablePan={false}
           minPolarAngle={Math.PI / 3}
-          maxPolarAngle={Math.PI / 2}
-          autoRotate={false}
+          maxPolarAngle={Math.PI / 2.2}
+          target={[0, 0.3, 0]}
         />
       </Canvas>
     </div>
