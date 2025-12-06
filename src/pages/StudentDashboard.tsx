@@ -3,9 +3,13 @@ import { HeroSection } from "@/components/HeroSection";
 import { LessonCard } from "@/components/LessonCard";
 import { StatsGrid } from "@/components/StatsGrid";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
-const Index = () => {
+const StudentDashboard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Mock data for demonstration
   const studentData = {
@@ -81,6 +85,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Back Button for Role Navigation */}
+      <div className="absolute top-4 left-4 z-50 sm:hidden">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+      </div>
+      
       <Header
         studentName={studentData.name}
         xp={studentData.xp}
@@ -88,7 +99,7 @@ const Index = () => {
       />
 
       <main className="container mx-auto px-4 pb-12">
-        {/* Hero with Fox Avatar */}
+        {/* Hero with Mousey Avatar */}
         <HeroSection
           todayLesson={todayLesson}
           onStartLesson={() => handleStartLesson(todayLesson.title)}
@@ -146,4 +157,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default StudentDashboard;
