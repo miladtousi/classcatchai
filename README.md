@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: [https://lovable.dev/projects/pwmdablgtyovhbofshyd](https://lovable.dev/projects/98b7d71e-7cf6-43d0-93ef-5c07b9e1a294)
+**URL**: [[https://lovable.dev/projects/pwmdablgtyovhbofshyd](https://lovable.dev/projects/98b7d71e-7cf6-43d0-93ef-5c07b9e1a294)](https://preview--classcatchai.lovable.app/?__lovable_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZ1FTYUVCb0RvMmNKbzBwa3psU2pPVHUwUDE5MyIsInByb2plY3RfaWQiOiI5OGI3ZDcxZS03Y2Y2LTQzZDAtOTNlZi01YzA3YjllMWEyOTQiLCJub25jZSI6IjA3NTIzZDYyNDc5MDRlMWM5M2ZkOWE5NTMxZGY2ZTQ0IiwiaXNzIjoibG92YWJsZS1hcGkiLCJzdWIiOiI5OGI3ZDcxZS03Y2Y2LTQzZDAtOTNlZi01YzA3YjllMWEyOTQiLCJhdWQiOlsibG92YWJsZS1hcHAiXSwiZXhwIjoxNzY1NjQwOTAxLCJuYmYiOjE3NjUwMzYxMDEsImlhdCI6MTc2NTAzNjEwMX0.HxV49j5-HH68MaPylDy3GgdVA2SYOCLxshIrxuyIXEM)
 
 ## How can I edit this code?
 
