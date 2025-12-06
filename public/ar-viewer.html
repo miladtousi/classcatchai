@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Mousey AR Viewer</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
   <style>
@@ -14,17 +14,21 @@
     html, body {
       width: 100%;
       height: 100%;
-      background: #1a1a2e;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      overflow: hidden;
+      touch-action: none;
     }
     model-viewer {
       width: 100%;
       height: 100%;
       background: transparent;
       --poster-color: transparent;
+      --progress-bar-color: #667eea;
+      --progress-bar-height: 4px;
     }
     .controls {
       position: absolute;
-      bottom: 16px;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -32,93 +36,165 @@
       gap: 12px;
       align-items: center;
       z-index: 10;
+      width: 90%;
+      max-width: 300px;
     }
     .ar-button {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
       border-radius: 50px;
-      padding: 14px 28px;
-      font-size: 16px;
+      padding: 16px 32px;
+      font-size: 18px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
     .ar-button:active {
-      transform: scale(0.98);
+      transform: scale(0.96);
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
     }
     .learn-button {
       background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       color: white;
       border: none;
       border-radius: 50px;
-      padding: 14px 28px;
-      font-size: 16px;
+      padding: 16px 32px;
+      font-size: 18px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      box-shadow: 0 4px 20px rgba(17, 153, 142, 0.5);
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
       transition: all 0.3s ease;
     }
     .learn-button.talking {
       background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-      box-shadow: 0 4px 15px rgba(235, 51, 73, 0.4);
+      box-shadow: 0 4px 20px rgba(235, 51, 73, 0.5);
     }
     .learn-button:active {
-      transform: scale(0.98);
+      transform: scale(0.96);
     }
-    .ar-prompt {
+    .info-text {
       position: absolute;
-      top: 80px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0,0,0,0.8);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
       color: white;
-      padding: 16px 24px;
+      padding: 12px 20px;
       border-radius: 12px;
       text-align: center;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-size: 14px;
-      display: none;
       z-index: 20;
-      max-width: 280px;
+      max-width: 90%;
     }
-    .loading {
+    .loading-overlay {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(26, 26, 46, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.5s;
+    }
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .loading-text {
       color: white;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-size: 18px;
+      margin-top: 20px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* AR mode overlay button */
+    .ar-overlay-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 18px 36px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 25px rgba(17, 153, 142, 0.6);
+      z-index: 9999;
+      display: none;
+    }
+    .ar-overlay-btn.talking {
+      background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+      box-shadow: 0 6px 25px rgba(235, 51, 73, 0.6);
     }
   </style>
 </head>
 <body>
-  <div class="loading" id="loading">Loading Mousey... 🐭</div>
+  <div class="loading-overlay" id="loading">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading Mousey... 🐭</div>
+  </div>
+
+  <div class="info-text" id="info">
+    👆 Tap "View in AR" to place Mousey on any surface!
+  </div>
   
   <model-viewer
     id="model"
     src="/models/fox-avatar.glb"
+    ios-src=""
     alt="Mousey 3D character"
     ar
-    ar-modes="webxr scene-viewer quick-look"
+    ar-modes="scene-viewer webxr quick-look"
     ar-scale="fixed"
     ar-placement="floor"
+    xr-environment
     camera-controls
+    touch-action="pan-y"
     auto-rotate
-    shadow-intensity="1"
-    shadow-softness="1"
-    exposure="1.2"
-    camera-orbit="0deg 75deg 2.5m"
-    min-camera-orbit="auto auto 1m"
-    max-camera-orbit="auto auto 5m"
-    field-of-view="30deg"
+    rotation-per-second="30deg"
+    interaction-prompt="auto"
+    shadow-intensity="1.5"
+    shadow-softness="0.8"
+    exposure="1"
+    camera-orbit="0deg 80deg 2m"
+    min-camera-orbit="auto auto 0.5m"
+    max-camera-orbit="auto auto 4m"
+    field-of-view="35deg"
+    min-field-of-view="20deg"
+    max-field-of-view="60deg"
+    interpolation-decay="100"
     style="width: 100%; height: 100%;"
   >
     <div class="controls">
@@ -131,33 +207,41 @@
     </div>
   </model-viewer>
 
-  <div class="ar-prompt" id="ar-prompt">
-    👆 Point at the floor and tap to place Mousey!
-  </div>
+  <!-- Floating button for AR mode -->
+  <button id="ar-learn-btn" class="ar-overlay-btn" onclick="toggleTalking()">
+    ▶️ Start Learning
+  </button>
 
   <script>
     const modelViewer = document.getElementById('model');
     const loadingEl = document.getElementById('loading');
-    const arPrompt = document.getElementById('ar-prompt');
+    const infoEl = document.getElementById('info');
     const learnBtn = document.getElementById('learn-btn');
+    const arLearnBtn = document.getElementById('ar-learn-btn');
     
     let isTalking = false;
     let talkingTimeout = null;
+    let isInAR = false;
 
     // Hide loading when model is ready
     modelViewer.addEventListener('load', () => {
-      loadingEl.style.display = 'none';
+      loadingEl.classList.add('hidden');
     });
 
-    // Show AR placement prompt
+    // Handle AR session
     modelViewer.addEventListener('ar-status', (event) => {
-      if (event.detail.status === 'session-started') {
-        arPrompt.style.display = 'block';
-        setTimeout(() => {
-          arPrompt.style.display = 'none';
-        }, 5000);
-      } else {
-        arPrompt.style.display = 'none';
+      const status = event.detail.status;
+      
+      if (status === 'session-started') {
+        isInAR = true;
+        arLearnBtn.style.display = 'block';
+        infoEl.textContent = '👆 Move your phone to scan surfaces, then tap to place Mousey!';
+      } else if (status === 'object-placed') {
+        infoEl.textContent = '✨ Mousey is placed! Tap "Start Learning" to begin!';
+      } else if (status === 'failed' || status === 'not-presenting') {
+        isInAR = false;
+        arLearnBtn.style.display = 'none';
+        infoEl.textContent = '👆 Tap "View in AR" to place Mousey on any surface!';
       }
     });
 
@@ -173,8 +257,9 @@
       isTalking = true;
       modelViewer.src = '/models/mousey-talking.glb';
       modelViewer.autoRotate = false;
-      learnBtn.innerHTML = '⏹️ Stop Lesson';
-      learnBtn.classList.add('talking');
+      
+      updateButtons('⏹️ Stop Lesson', true);
+      infoEl.textContent = '🎓 Mousey is teaching! Listen carefully...';
       
       // Auto-stop after 60 seconds
       talkingTimeout = setTimeout(() => {
@@ -190,9 +275,30 @@
       }
       modelViewer.src = '/models/fox-avatar.glb';
       modelViewer.autoRotate = true;
-      learnBtn.innerHTML = '▶️ Start Learning';
-      learnBtn.classList.remove('talking');
+      
+      updateButtons('▶️ Start Learning', false);
+      infoEl.textContent = isInAR 
+        ? '✨ Tap "Start Learning" to hear Mousey teach!' 
+        : '👆 Tap "View in AR" to place Mousey on any surface!';
     }
+
+    function updateButtons(text, talking) {
+      learnBtn.innerHTML = text;
+      arLearnBtn.innerHTML = text;
+      
+      if (talking) {
+        learnBtn.classList.add('talking');
+        arLearnBtn.classList.add('talking');
+      } else {
+        learnBtn.classList.remove('talking');
+        arLearnBtn.classList.remove('talking');
+      }
+    }
+
+    // Fallback: hide loading after 5 seconds
+    setTimeout(() => {
+      loadingEl.classList.add('hidden');
+    }, 5000);
   </script>
 </body>
 </html>
