@@ -54,12 +54,12 @@ function LoadingFallback() {
   );
 }
 
-interface FoxAvatarProps {
+interface MouseyAvatarProps {
   isWaving?: boolean;
   className?: string;
 }
 
-export function FoxAvatar({ isWaving = false, className = "" }: FoxAvatarProps) {
+export function MouseyAvatar({ isWaving = false, className = "" }: MouseyAvatarProps) {
   return (
     <div className={`w-full h-full ${className}`}>
       <Canvas

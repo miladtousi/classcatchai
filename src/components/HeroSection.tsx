@@ -1,4 +1,4 @@
-import { FoxAvatar } from "./FoxAvatar";
+import { MouseyAvatar } from "./MouseyAvatar";
 import { Button } from "./ui/button";
 import { Play, Sparkles, Volume2 } from "lucide-react";
 import { useState } from "react";
@@ -30,13 +30,13 @@ export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
 
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-          {/* Fox Avatar */}
+          {/* Mousey Avatar */}
           <div 
             className="relative w-full max-w-sm lg:max-w-md aspect-square cursor-pointer"
             onClick={handleWave}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 rounded-full blur-2xl animate-pulse" />
-            <FoxAvatar isWaving={isWaving} className="relative z-10" />
+            <MouseyAvatar isWaving={isWaving} className="relative z-10" />
             
             {/* Click hint */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-card/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft">
@@ -60,7 +60,7 @@ export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
               </h1>
               
               <p className="text-lg sm:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0">
-                I'm Foxy, your learning buddy! 🦊 Let me help you catch up on today's lessons in a fun way!
+                I'm Mousey, your learning buddy! 🐭 Let me help you catch up on today's lessons in a fun way!
               </p>
             </div>
 

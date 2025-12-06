@@ -14,7 +14,7 @@ export function Header({ studentName, xp, level }: HeaderProps) {
       {/* Logo */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-soft">
-          <span className="text-xl">🦊</span>
+          <span className="text-xl">🐭</span>
         </div>
         <div className="hidden sm:block">
           <h1 className="text-xl font-black gradient-text">ClassCatch</h1>
