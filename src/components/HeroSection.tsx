@@ -1,6 +1,7 @@
 import { MouseyAvatar } from "./MouseyAvatar";
+import { ARViewer } from "./ARViewer";
 import { Button } from "./ui/button";
-import { Play, Sparkles, Volume2, Square } from "lucide-react";
+import { Play, Sparkles, Volume2, Square, Smartphone } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 
 interface HeroSectionProps {
@@ -16,6 +17,7 @@ const TALKING_DURATION = 60000; // 1 minute in milliseconds
 export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
   const [isTalking, setIsTalking] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
+  const [showAR, setShowAR] = useState(false);
 
   const startTalking = useCallback(() => {
     setIsTalking(true);
@@ -83,6 +85,15 @@ export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
                 </>
               )}
             </div>
+            
+            {/* AR Button */}
+            <button
+              onClick={() => setShowAR(true)}
+              className="absolute top-4 right-4 z-20 p-3 bg-card/90 backdrop-blur-sm rounded-full shadow-soft hover:bg-card transition-colors group"
+              aria-label="View in AR"
+            >
+              <Smartphone className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+            </button>
           </div>
 
           {/* Content */}
@@ -155,6 +166,9 @@ export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
           </div>
         </div>
       </div>
+      
+      {/* AR Viewer Modal */}
+      {showAR && <ARViewer onClose={() => setShowAR(false)} />}
     </section>
   );
 }
