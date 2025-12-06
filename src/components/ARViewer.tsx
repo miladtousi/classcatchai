@@ -35,7 +35,7 @@ export function ARViewer({ onClose }: ARViewerProps) {
       </div>
 
       <div className="w-full max-w-md aspect-square bg-card rounded-3xl overflow-hidden shadow-card">
-        {/* Load model-viewer via script tag to avoid Three.js version conflict */}
+        {/* Load model-viewer via CDN to avoid Three.js version conflict */}
         <iframe
           src={`data:text/html,
             <!DOCTYPE html>
