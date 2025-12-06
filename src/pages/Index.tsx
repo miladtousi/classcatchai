@@ -137,7 +137,7 @@ const Index = () => {
               You're doing amazing!
             </h3>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Keep learning every day and watch your knowledge grow! Foxy believes in you! 🦊
+              Keep learning every day and watch your knowledge grow! Mousey believes in you! 🐭
             </p>
           </div>
         </section>
