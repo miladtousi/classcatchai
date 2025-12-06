@@ -1,36 +1,59 @@
-import { Suspense, useRef, useEffect } from "react";
+import { Suspense, useRef, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, useGLTF, useAnimations, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 
-function CharacterModel({ isWaving = false }: { isWaving?: boolean }) {
+function IdleModel({ visible }: { visible: boolean }) {
   const group = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF("/models/fox-avatar.glb");
   const { actions, names } = useAnimations(animations, group);
   
   useEffect(() => {
-    // Play the first animation if available
-    if (names.length > 0 && actions[names[0]]) {
+    if (visible && names.length > 0 && actions[names[0]]) {
       actions[names[0]]?.reset().fadeIn(0.5).play();
     }
-  }, [actions, names]);
+    return () => {
+      names.forEach(name => actions[name]?.fadeOut(0.5));
+    };
+  }, [visible, actions, names]);
 
   useFrame((state) => {
-    if (group.current) {
-      // Very subtle floating animation
+    if (group.current && visible) {
       group.current.position.y = -1.5 + Math.sin(state.clock.elapsedTime * 0.8) * 0.02;
-      
-      // Subtle rotation
-      if (isWaving) {
-        group.current.rotation.y = Math.sin(state.clock.elapsedTime * 3) * 0.15;
-      } else {
-        group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
-      }
+      group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
     }
   });
 
   return (
-    <group ref={group} position={[0, -1.5, 0]} scale={0.012}>
+    <group ref={group} position={[0, -1.5, 0]} scale={0.012} visible={visible}>
+      <primitive object={scene} />
+    </group>
+  );
+}
+
+function TalkingModel({ visible }: { visible: boolean }) {
+  const group = useRef<THREE.Group>(null);
+  const { scene, animations } = useGLTF("/models/mousey-talking.glb");
+  const { actions, names } = useAnimations(animations, group);
+  
+  useEffect(() => {
+    if (visible && names.length > 0 && actions[names[0]]) {
+      actions[names[0]]?.reset().fadeIn(0.3).play();
+    }
+    return () => {
+      names.forEach(name => actions[name]?.fadeOut(0.3));
+    };
+  }, [visible, actions, names]);
+
+  useFrame((state) => {
+    if (group.current && visible) {
+      group.current.position.y = -1.5 + Math.sin(state.clock.elapsedTime * 1.2) * 0.01;
+      group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
+    }
+  });
+
+  return (
+    <group ref={group} position={[0, -1.5, 0]} scale={0.012} visible={visible}>
       <primitive object={scene} />
     </group>
   );
@@ -55,11 +78,11 @@ function LoadingFallback() {
 }
 
 interface MouseyAvatarProps {
-  isWaving?: boolean;
+  isTalking?: boolean;
   className?: string;
 }
 
-export function MouseyAvatar({ isWaving = false, className = "" }: MouseyAvatarProps) {
+export function MouseyAvatar({ isTalking = false, className = "" }: MouseyAvatarProps) {
   return (
     <div className={`w-full h-full ${className}`}>
       <Canvas
@@ -76,7 +99,8 @@ export function MouseyAvatar({ isWaving = false, className = "" }: MouseyAvatarP
         <pointLight position={[0, 3, 0]} intensity={0.5} color="#FFC857" />
         
         <Suspense fallback={<LoadingFallback />}>
-          <CharacterModel isWaving={isWaving} />
+          <IdleModel visible={!isTalking} />
+          <TalkingModel visible={isTalking} />
           <ContactShadows
             position={[0, -1.5, 0]}
             opacity={0.6}
@@ -98,5 +122,6 @@ export function MouseyAvatar({ isWaving = false, className = "" }: MouseyAvatarP
   );
 }
 
-// Preload the model
+// Preload both models
 useGLTF.preload("/models/fox-avatar.glb");
+useGLTF.preload("/models/mousey-talking.glb");

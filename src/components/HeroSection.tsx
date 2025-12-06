@@ -1,7 +1,7 @@
 import { MouseyAvatar } from "./MouseyAvatar";
 import { Button } from "./ui/button";
-import { Play, Sparkles, Volume2 } from "lucide-react";
-import { useState } from "react";
+import { Play, Sparkles, Volume2, Square } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 
 interface HeroSectionProps {
   todayLesson?: {
@@ -11,12 +11,44 @@ interface HeroSectionProps {
   onStartLesson?: () => void;
 }
 
-export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
-  const [isWaving, setIsWaving] = useState(false);
+const TALKING_DURATION = 60000; // 1 minute in milliseconds
 
-  const handleWave = () => {
-    setIsWaving(true);
-    setTimeout(() => setIsWaving(false), 2000);
+export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
+  const [isTalking, setIsTalking] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+
+  const startTalking = useCallback(() => {
+    setIsTalking(true);
+    setTimeRemaining(TALKING_DURATION / 1000);
+    onStartLesson?.();
+  }, [onStartLesson]);
+
+  const stopTalking = useCallback(() => {
+    setIsTalking(false);
+    setTimeRemaining(0);
+  }, []);
+
+  // Timer countdown
+  useEffect(() => {
+    if (!isTalking) return;
+
+    const interval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          setIsTalking(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isTalking]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -31,17 +63,25 @@ export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           {/* Mousey Avatar */}
-          <div 
-            className="relative w-full max-w-sm lg:max-w-md aspect-square cursor-pointer"
-            onClick={handleWave}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 rounded-full blur-2xl animate-pulse" />
-            <MouseyAvatar isWaving={isWaving} className="relative z-10" />
+          <div className="relative w-full max-w-sm lg:max-w-md aspect-square">
+            <div className={`absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 rounded-full blur-2xl ${isTalking ? 'animate-pulse' : ''}`} />
+            <MouseyAvatar isTalking={isTalking} className="relative z-10" />
             
-            {/* Click hint */}
+            {/* Status indicator */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-card/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft">
-              <span className="text-sm font-medium text-muted-foreground">Click to say hi!</span>
-              <span className="text-lg">👋</span>
+              {isTalking ? (
+                <>
+                  <span className="w-2 h-2 bg-success rounded-full animate-pulse" />
+                  <span className="text-sm font-medium text-foreground">
+                    Mousey is teaching... {formatTime(timeRemaining)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-sm font-medium text-muted-foreground">Click to start learning!</span>
+                  <span className="text-lg">🎓</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -49,9 +89,9 @@ export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
           <div className="flex-1 text-center lg:text-left space-y-6 animate-slide-up">
             {/* Greeting */}
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-success/10 text-success rounded-full text-sm font-bold">
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${isTalking ? 'bg-success/20 text-success' : 'bg-success/10 text-success'}`}>
                 <Sparkles className="w-4 h-4" />
-                Ready to learn today!
+                {isTalking ? "Learning in progress!" : "Ready to learn today!"}
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-foreground">
@@ -60,7 +100,10 @@ export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
               </h1>
               
               <p className="text-lg sm:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0">
-                I'm Mousey, your learning buddy! 🐭 Let me help you catch up on today's lessons in a fun way!
+                {isTalking 
+                  ? "Listen carefully! Mousey is explaining today's lesson... 🐭✨"
+                  : "I'm Mousey, your learning buddy! 🐭 Let me help you catch up on today's lessons in a fun way!"
+                }
               </p>
             </div>
 
@@ -75,14 +118,37 @@ export function HeroSection({ todayLesson, onStartLesson }: HeroSectionProps) {
                 <p className="text-sm text-muted-foreground mb-4">{todayLesson.subject}</p>
                 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button variant="hero" size="lg" className="flex-1" onClick={onStartLesson}>
-                    <Play className="w-5 h-5 fill-current" />
-                    Start Learning
-                  </Button>
-                  <Button variant="playful" size="lg">
-                    <Volume2 className="w-5 h-5" />
-                    Listen First
-                  </Button>
+                  {isTalking ? (
+                    <Button 
+                      variant="destructive" 
+                      size="lg" 
+                      className="flex-1"
+                      onClick={stopTalking}
+                    >
+                      <Square className="w-5 h-5 fill-current" />
+                      Stop Lesson
+                    </Button>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="hero" 
+                        size="lg" 
+                        className="flex-1" 
+                        onClick={startTalking}
+                      >
+                        <Play className="w-5 h-5 fill-current" />
+                        Start Learning
+                      </Button>
+                      <Button 
+                        variant="playful" 
+                        size="lg"
+                        onClick={startTalking}
+                      >
+                        <Volume2 className="w-5 h-5" />
+                        Listen First
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             )}
